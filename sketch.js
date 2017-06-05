@@ -1,40 +1,55 @@
-var SIGMA=10;
-var BETA=8/3;
-var RHO=28;
-
+var INIT_SIGMA=10;
+var INIT_BETA=8/3;
+var INIT_RHO=28;
 var MAX_POINTS = 200;
-
-var SCALE=7;
+var SCALE=12;
 
 var dt = 0.01;
 
 var paths = []
 
+var sigmaBox;
+var betaBox;
+var rhoBox;
+
 function setup() {
   createCanvas(windowHeight, windowHeight);
   frameRate(60);
+
+  sigmaBox = createInput();
+  sigmaBox.position(20,20);
+  sigmaBox.value(INIT_SIGMA);
+  betaBox = createInput();
+  betaBox.position(20, 50);
+  betaBox.value(INIT_BETA);
+  rhoBox = createInput();
+  rhoBox.position(20, 80);
+  rhoBox.value(INIT_RHO);
 }
 
 function mouseReleased() {
   var x = (mouseX - width/2)/SCALE;
   var y = (mouseY - width/2)/SCALE;
-  paths.push(new Path(x, y, 0));
+  if (mouseX > width/4 && mouseX < width*3/4 && mouseY > height/4 && mouseY < height*3/4) {
+    paths.push(new Path(x, y, 0));
+  }
+}
+
+function calc_attractor(x, y, z, sigma, rho, beta) {
+    return [sigma*(y-x), x*(rho-z) - y, x*y - beta*z];
 }
 
 function draw() {
   background(51);
   translate(width/2, height/2);
+  var sigma = sigmaBox.value();
+  var beta = betaBox.value();
+  var rho = rhoBox.value();
   for (var i=0; i < paths.length; ++i) {
     p = paths[i];
-    var px = p.x[p.last];
-    var py = p.y[p.last];
-    var pz = p.z[p.last];
 
-    var dx = SIGMA*(py-px);
-    var dy = px*(RHO-pz) - py;
-    var dz = px*py - BETA*pz;
-
-    p.velocity.set(dx, dy, dz);
+    dxdydz = calc_attractor(p.x[p.last], p.y[p.last], p.z[p.last], sigma, rho, beta);
+    p.velocity.set(dxdydz[0], dxdydz[1], dxdydz[2]);
 
     p.update();
     p.display();
@@ -75,9 +90,9 @@ Path.prototype.display = function() {
     ++count;
     var val = count/MAX_POINTS*204 + 51;
     stroke(val);
-    var linewidth = map(this.z[j], 14, 30, 0.5, 2);
-    //strokeWeight(linewidth);
-    //line(SCALE*this.x[pj], SCALE*this.y[pj], SCALE*this.x[j], SCALE*this.y[j]);
-    ellipse(SCALE*this.x[j], SCALE*this.y[j], linewidth, linewidth);
+    var linewidth = map(this.z[pj], 14, 30, 0.5, 2);
+    strokeWeight(linewidth);
+    line(SCALE*this.x[pj], SCALE*this.y[pj], SCALE*this.x[j], SCALE*this.y[j]);
+    //ellipse(SCALE*this.x[j], SCALE*this.y[j], linewidth, linewidth);
   }
 };
