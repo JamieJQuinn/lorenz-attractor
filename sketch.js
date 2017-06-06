@@ -13,7 +13,7 @@ var betaBox;
 var rhoBox;
 
 function setup() {
-  createCanvas(windowHeight, windowHeight);
+  createCanvas(windowWidth, windowHeight);
   frameRate(60);
 
   sigmaBox = createInput();
