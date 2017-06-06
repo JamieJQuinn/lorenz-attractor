@@ -29,7 +29,7 @@ function setup() {
 
 function mouseReleased() {
   var x = (mouseX - width/2)/SCALE;
-  var y = (mouseY - width/2)/SCALE;
+  var y = (mouseY - height/2)/SCALE;
   if (mouseX > width/4 && mouseX < width*3/4 && mouseY > height/4 && mouseY < height*3/4) {
     paths.push(new Path(x, y, 0));
   }
