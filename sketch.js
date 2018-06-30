@@ -7,7 +7,7 @@ var SCALE=12;
 var ALPHA_PARTICLES = 0.05;
 var BG_COLOUR = 51;
 
-var dt = 0.01;
+var dt = 0.0005;
 
 var paths = [];
 var particles = [];
@@ -158,6 +158,8 @@ function draw() {
       var p = paths[i];
       dxdydz = calc_attractor(p.x[p.last], p.y[p.last], p.z[p.last], sigma, rho, beta);
       p.velocity.set(dxdydz[0], dxdydz[1], dxdydz[2]);
+      randomSign = random(1) - 0.5 < 0 ? -1 : 1;
+      p.offset[(p.last+1)%MAX_PATH_LENGTH] = randomSign*map(dxdydz[2], -10, 10, 0, 0.005);
       p.update();
     }
     for(var i=0; i < particles.length; ++i) {
@@ -200,6 +202,7 @@ var Path = function(x_0, y_0, z_0) {
   this.x = Array.apply(null, Array(MAX_PATH_LENGTH)).map(Number.prototype.valueOf,x_0);
   this.y = Array.apply(null, Array(MAX_PATH_LENGTH)).map(Number.prototype.valueOf,y_0);
   this.z = Array.apply(null, Array(MAX_PATH_LENGTH)).map(Number.prototype.valueOf,z_0);
+  this.offset = Array.apply(null, Array(MAX_PATH_LENGTH)).map(Number.prototype.valueOf,0);
   this.last = 0;
   this.velocity = createVector(0, 0, 0);
   this.colour = [1, 1, 1, alphaVal];
@@ -237,7 +240,11 @@ Path.prototype.display = function() {
         var linewidth = map(this.z[pj], 10, 40, 0.2, 2);
         strokeWeight(linewidth);
       }
-      line(SCALE*this.x[pj], SCALE*this.y[pj], SCALE*this.x[j], SCALE*this.y[j]);
+      xOld = SCALE*this.x[pj]-SCALE*this.y[pj]*this.offset[pj]
+      yOld = SCALE*this.y[pj]+SCALE*this.x[pj]*this.offset[pj]
+      xNew = SCALE*this.x[ j]-SCALE*this.y[ j]*this.offset[ j]
+      yNew = SCALE*this.y[ j]+SCALE*this.x[ j]*this.offset[ j]
+      line(xOld, yOld, xNew, yNew);
       //ellipse(SCALE*this.x[j], SCALE*this.y[j], linewidth, linewidth);
     }
   } else {
@@ -248,6 +255,10 @@ Path.prototype.display = function() {
            val*this.colour[1]+BG_COLOUR,
            val*this.colour[2]+BG_COLOUR,
            255*this.colour[3]);
-    line(SCALE*this.x[pj], SCALE*this.y[pj], SCALE*this.x[j], SCALE*this.y[j]);
+    xOld = SCALE*this.x[pj]-SCALE*this.y[pj]*this.offset[pj]
+    yOld = SCALE*this.y[pj]+SCALE*this.x[pj]*this.offset[pj]
+    xNew = SCALE*this.x[ j]-SCALE*this.y[ j]*this.offset[ j]
+    yNew = SCALE*this.y[ j]+SCALE*this.x[ j]*this.offset[ j]
+    line(xOld, yOld, xNew, yNew);
   }
 };
